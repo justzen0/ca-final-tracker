@@ -5574,6 +5574,18 @@ async function loadAsync() {
   } catch (e) {
     console.error("Storage load failed:", e);
   }
+
+  function mergeDefault(l, f) {
+  Object.keys(f).forEach(function (k) {
+    if (l[k] == null) l[k] = f[k];
+    else if (f[k] !== null && typeof f[k] === 'object' && !Array.isArray(f[k]) && typeof l[k] === 'object' && l[k] !== null) {
+      Object.keys(f[k]).forEach(function (s) {
+        if (l[k][s] === undefined) l[k][s] = f[k][s];
+      });
+    }
+  });
+  return l;
+}
   
   // If nothing loaded, initialize fresh state
   APP = freshState();
