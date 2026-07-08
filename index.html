@@ -1,18 +1,10 @@
 <!DOCTYPE html>
-<!--
-  CA Final Tracker
-  Built by Shreyash Jain — github.com/jainshreyash8-cloud/CAInterTracker
-  © 2026 Shreyash Jain. All rights reserved.
-  You may use this for personal study. Redistribution or reposting without
-  attribution to the original author is not permitted.
--->
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
   <title>Tracker · CA Final</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
   <meta name="theme-color" content="#0E0E0E">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,6 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Tracker">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -3209,6 +3202,23 @@
           style="font-family:'Sora',sans-serif;font-size:44px;font-weight:800;letter-spacing:-.03em;text-transform:uppercase;color:var(--ink)">
           TRACKER</div>
       </div>
+      <div class="su-sec" style="text-align:center">
+        <button class="btn btn-block" id="su-google-btn" type="button"
+          style="padding:12px;border-radius:12px;background:#fff;color:#1f1f1f;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
+            <path fill="#FFC107"
+              d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+            <path fill="#4CAF50"
+              d="M24 44c5.5 0 10.4-2.1 14.1-5.6l-6.5-5.5C29.6 34.7 26.9 36 24 36c-5.3 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.3 44 24 44z" />
+            <path fill="#1976D2"
+              d="M43.6 20.5H42V20H24v8h11.3c-1 3-3.2 5.4-6 6.9l6.5 5.5C39.9 37.1 44 31.1 44 24c0-1.3-.1-2.7-.4-3.5z" />
+          </svg>
+          Continue with Google
+        </button>
+        <div class="xs muted mt8" id="su-google-status">We'll fetch your name, and reconnect your data automatically if
+          you've used the tracker before.</div>
+      </div>
       <div class="su-sec">
         <div class="su-t">Your details</div>
         <div class="fld2">
@@ -3259,24 +3269,47 @@
       <details class="su-sec cloud-sec" style="margin-top:12px">
         <summary>Restore from cloud sync</summary>
         <div class="cloud-body">
-          <div class="fld">
-            <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--dim)">(gist
-                scope)</span></label>
-            <input type="password" id="su-tok"
-              placeholder="ghp_xxxx… — Settings → Developer settings → Tokens → New token → check Gist">
+          <div class="seg mb12" id="su-restore-mode">
+            <button class="seg-btn on" data-m="fb" type="button">Firebase</button>
+            <button class="seg-btn" data-m="gist" type="button">GitHub Gist (legacy)</button>
           </div>
-          <button class="btn btn-sm btn-ghost btn-block" id="su-restore" style="margin-top:6px">↓ Find &amp; restore my
-            data</button>
-          <div class="hint mt6">We'll scan your Gists automatically — no need to know the Gist ID.<br><br>
-            <b style="color:var(--ink)">How to get a token:</b><br>
-            1. Open <a href="https://github.com/settings/tokens/new?scopes=gist&description=CA+Tracker+Sync"
-              target="_blank" style="color:var(--accent)">this link</a> (logs in to GitHub)<br>
-            2. The page says "New personal access token" — <b>gist</b> scope is already ticked<br>
-            3. Scroll to the bottom → click <b>Generate token</b><br>
-            4. Copy the <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px">ghp_…</code>
-            string that appears → paste above<br>
-            <span style="color:var(--dim)">The token is shown only once. Save it somewhere if you want to use it
-              again.</span>
+          <div id="su-fb-restore">
+            <div class="fld">
+              <label>Firebase config <span style="font-weight:400;color:var(--dim)">(from your other
+                  device's Settings → Cloud sync)</span></label>
+              <textarea id="su-fb-cfg" rows="3" placeholder='{"apiKey":"...","projectId":"...","...":"..."}'
+                style="width:100%;font-family:'JetBrains Mono',monospace;font-size:11px"></textarea>
+            </div>
+            <div class="fld">
+              <label>Sync key</label>
+              <input id="su-fb-key" placeholder="the sync key shown on your other device"
+                style="font-family:'JetBrains Mono',monospace;font-size:11px">
+            </div>
+            <button class="btn btn-sm btn-ghost btn-block" id="su-fb-restore-btn" style="margin-top:6px">↓ Restore my
+              data</button>
+            <div class="hint mt6">Paste the exact same Firebase config and sync key you set up on your other
+              device — both are on that device's Settings → Cloud sync page.</div>
+          </div>
+          <div id="su-gist-restore" class="dn">
+            <div class="fld">
+              <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--dim)">(gist
+                  scope)</span></label>
+              <input type="password" id="su-tok"
+                placeholder="ghp_xxxx… — Settings → Developer settings → Tokens → New token → check Gist">
+            </div>
+            <button class="btn btn-sm btn-ghost btn-block" id="su-restore" style="margin-top:6px">↓ Find &amp; restore my
+              data</button>
+            <div class="hint mt6">We'll scan your Gists automatically — no need to know the Gist ID.<br><br>
+              <b style="color:var(--ink)">How to get a token:</b><br>
+              1. Open <a href="https://github.com/settings/tokens/new?scopes=gist&description=CA+Tracker+Sync"
+                target="_blank" style="color:var(--accent)">this link</a> (logs in to GitHub)<br>
+              2. The page says "New personal access token" — <b>gist</b> scope is already ticked<br>
+              3. Scroll to the bottom → click <b>Generate token</b><br>
+              4. Copy the <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px">ghp_…</code>
+              string that appears → paste above<br>
+              <span style="color:var(--dim)">The token is shown only once. Save it somewhere if you want to use it
+                again.</span>
+            </div>
           </div>
         </div>
       </details>
@@ -5106,18 +5139,15 @@
       var checkModal = modal({
         title: "Are you still studying?",
         body: "<div class='sm' style='line-height:1.6;color:var(--ink)'>We noticed no activity on your tracker for 3 hours. If you are away, we will automatically pause the timer at the 3-hour mark so your stats stay accurate.</div>",
-        onClose: function () {
-          // Guarantee the timer is cleared regardless of how the modal is closed
-          _inactivityAlertActive = false;
-          _lastUserActivityTime = Date.now();
-          if (_inactivityTimer) { clearTimeout(_inactivityTimer); _inactivityTimer = null; }
-        },
         actions: [
           {
             label: "Yes, I am studying",
             kind: "primary",
             onClick: function () {
-              return true; // onClose handles the cleanup now
+              _inactivityAlertActive = false;
+              _lastUserActivityTime = Date.now(); // reset activity timer
+              if (_inactivityTimer) { clearTimeout(_inactivityTimer); _inactivityTimer = null; }
+              return true;
             }
           }
         ],
@@ -5148,6 +5178,19 @@
       if (!APP) return;
       if (!APP.deletedIds) APP.deletedIds = {};
       APP.deletedIds[id] = getNow();
+    }
+    /* Deletion tombstones only need to live long enough for every device to have
+       synced past them once. Without this, APP.deletedIds grows forever across
+       years of use. 365 days is generous — safe even if a device stays offline
+       for a long stretch before reconnecting. */
+    function pruneDeletedIds() {
+      if (!APP || !APP.deletedIds) return false;
+      var cutoff = getNow() - 365 * 24 * 3600 * 1000;
+      var changed = false;
+      Object.keys(APP.deletedIds).forEach(function (id) {
+        if (APP.deletedIds[id] < cutoff) { delete APP.deletedIds[id]; changed = true; }
+      });
+      return changed;
     }
     function $(id) { return document.getElementById(id); }
     function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
@@ -5502,10 +5545,7 @@
       if (o.actions) { acts = '<div class="row mt12" style="justify-content:flex-end;gap:8px;flex-wrap:wrap">' + o.actions.map(function (a, i) { var c = a.kind === 'primary' ? 'btn-p' : a.kind === 'danger' ? 'btn-dan' : a.kind === 'ghost' ? 'btn-ghost' : ''; return '<button class="btn ' + c + '" data-mi="' + i + '">' + esc(a.label) + '</button>'; }).join('') + '</div>'; }
       $('modal-root').innerHTML = '<div class="modal-ov ' + sz + '"><div class="modal-box"><button class="modal-x" data-x>×</button>' + (o.title ? '<div class="modal-h">' + esc(o.title) + '</div>' : '') + '<div>' + (o.body || '') + '</div>' + acts + '</div></div>';
       var root = $('modal-root'), ov = root.querySelector('.modal-ov');
-      function close() { 
-         if (o.onClose) o.onClose(); // <-- Added onClose hook
-         root.innerHTML = ''; 
-      }
+      function close() { root.innerHTML = ''; }
       root.querySelector('[data-x]').onclick = close;
       ov.onclick = function (e) { if (e.target === ov) close(); };
       if (o.actions) o.actions.forEach(function (a, i) { root.querySelector('[data-mi="' + i + '"]').onclick = function () { var keep = a.onClick && a.onClick(close, root); if (!keep) close(); }; });
@@ -5514,96 +5554,139 @@
     }
     function confirmDlg(msg, onYes, o) { o = o || {}; modal({ title: o.title || 'Confirm', body: '<div class="sm" style="line-height:1.6;color:var(--ink)">' + esc(msg) + '</div>', actions: [{ label: o.cancel || 'Cancel', kind: 'ghost' }, { label: o.yes || 'Yes', kind: o.danger ? 'danger' : 'primary', onClick: function () { onYes(); } }] }); }
     /* ═══════════ STORAGE ═══════════ */
-var _cloudT = null, _cloudBusy = false, _cloudDirty = false, _cloudRetryCount = 0;
-var _storageOK = true;
+    var _cloudT = null, _cloudBusy = false, _cloudDirty = false, _cloudRetryCount = 0;
 
-// Configure localforage to prioritize IndexedDB
-localforage.config({
-  name: 'ca_tracker',
-  storeName: 'kv'
-});
-
-function save(now, noSync) {
-  if (!APP) return;
-  try {
-    APP.meta.savedAt = getNow();
-    var json = JSON.stringify(APP);
-    
-    // Save to localforage asynchronously
-    localforage.setItem(STORE_KEY, json).then(function() {
-      // Keep a backup key as well
-      localforage.setItem(STORE_KEY + '_bak', json);
-    }).catch(function(e) {
-      if (_storageOK) {
-        _storageOK = false;
-        storageFailBanner();
-      }
-    });
-
-    if (!noSync && GTOKEN && GID) { 
-      _cloudDirty = true; 
-      if (_cloudT) clearTimeout(_cloudT); 
-      _cloudT = setTimeout(syncToCloud, now ? 500 : 8000); 
-    }
-  } catch (eAll) { /* prevent crashes during tick */ }
-}
-
-async function loadAsync() {
-  try {
-    // Attempt to load primary, fallback to backup
-    var raw = await localforage.getItem(STORE_KEY);
-    if (!raw) raw = await localforage.getItem(STORE_KEY + '_bak');
-    
-    if (raw) {
-      var p = JSON.parse(raw);
-      if (p && p.cfg) {
-        APP = mergeDefault(p, freshState());
-        // Syllabus upgrade check
-        if (!APP.meta.syllabusVersion || APP.meta.syllabusVersion < 3) {
-          if (APP.chapters) {
-            delete APP.chapters.fr; delete APP.chapters.audit; delete APP.chapters.dt; delete APP.chapters.idt; delete APP.chapters.ibs; delete APP.chapters.seta; delete APP.chapters.setb; delete APP.chapters.setc; delete APP.chapters.setd;
-          }
-          if (!APP.meta) APP.meta = {};
-          APP.meta.syllabusVersion = 3;
-          if (APP.finalRev) APP.finalRev.passes = null;
-          save(true);
-        }
-        return true; 
-      }
-    }
-  } catch (e) {
-    console.error("Storage load failed:", e);
-  }
-
-  function mergeDefault(l, f) {
-  Object.keys(f).forEach(function (k) {
-    if (l[k] == null) l[k] = f[k];
-    else if (f[k] !== null && typeof f[k] === 'object' && !Array.isArray(f[k]) && typeof l[k] === 'object' && l[k] !== null) {
-      Object.keys(f[k]).forEach(function (s) {
-        if (l[k][s] === undefined) l[k][s] = f[k][s];
+    /* IndexedDB wrapper — persists on file:// in ALL browsers including Safari */
+    var _idb = null;
+    function idbOpen() {
+      return new Promise(function (res, rej) {
+        if (_idb) { res(_idb); return; }
+        var req = indexedDB.open('ca_tracker', 1);
+        req.onupgradeneeded = function (e) { e.target.result.createObjectStore('kv'); };
+        req.onsuccess = function (e) { _idb = e.target.result; res(_idb); };
+        req.onerror = function () { rej(req.error); };
       });
     }
-  });
-  return l;
-}
-  
-  // If nothing loaded, initialize fresh state
-  APP = freshState();
-  if (!APP.meta) APP.meta = {};
-  APP.meta.syllabusVersion = 3;
-  return false;
-}
+    function idbSet(val) {
+      return idbOpen().then(function (db) {
+        return new Promise(function (res, rej) {
+          var tx = db.transaction('kv', 'readwrite'), st = tx.objectStore('kv');
+          var r = st.put(val, STORE_KEY);
+          r.onsuccess = function () { res(); }; r.onerror = function () { rej(r.error); };
+        });
+      });
+    }
+    function idbGet() {
+      return idbOpen().then(function (db) {
+        return new Promise(function (res, rej) {
+          var tx = db.transaction('kv', 'readonly'), st = tx.objectStore('kv');
+          var r = st.get(STORE_KEY);
+          r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
+        });
+      });
+    }
 
-function nukeAll() {
-  confirmDlg('Delete ALL data permanently? This will wipe all your logs, tests, and settings.', function () {
-    localStorage.removeItem('ca_gtoken'); 
-    localStorage.removeItem('ca_gid');
-    APP = null;
-    localforage.clear().then(function() {
-      location.reload();
-    });
-  }, { danger: true, yes: 'Delete everything' });
-}
+    var _storageOK = true;
+    function save(now, noSync) {
+      if (!APP) return;
+      try {
+        APP.meta.savedAt = getNow();
+        var json = JSON.stringify(APP);
+        var wrote = false;
+        /* 1. localStorage — verify the write actually persisted by reading it back */
+        try {
+          localStorage.setItem(STORE_KEY, json);
+          if (localStorage.getItem(STORE_KEY) === json) wrote = true;
+          try { localStorage.setItem(STORE_KEY + '_bak', json); } catch (e2) { }
+          try { var used = json.length * 2, pct = Math.round(used / 5000000 * 100); if (pct > 85 && !save._warnedQuota) { save._warnedQuota = true; toast('Storage ' + pct + '% full — export a backup from Settings.', 'err'); } } catch (e3) { }
+        } catch (e) { if (e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) { toast('Storage full — export a backup from Settings.', 'err'); } }
+        /* 2. IndexedDB — persists on file:// in Chrome/Firefox */
+        try { idbSet(json).catch(function () { }); wrote = true; } catch (e4) { }
+        /* If NEITHER store worked, warn the user loudly (private mode / Safari file://) */
+        if (!wrote && _storageOK) { _storageOK = false; storageFailBanner(); }
+        if (!noSync) {
+          if (FB_CONFIG && FB_SYNCKEY) { fbQueuePush(now); }
+          else if (GTOKEN && GID) { _cloudDirty = true; if (_cloudT) clearTimeout(_cloudT); _cloudT = setTimeout(syncToCloud, now ? 500 : 8000); }
+        }
+      } catch (eAll) {/* never let save crash a tick */ }
+    }
+    function storageFailBanner() {
+      var b = $('file-warn'); if (!b) return;
+      b.style.background = '#1a0606'; b.style.borderTopColor = '#FF6B81';
+      b.innerHTML = '<span style="color:#FF6B81;font-weight:700;flex-shrink:0">⚠ NOT saving</span>' +
+        '<span style="color:#EDEAE3;flex:1">Your browser is blocking storage (Safari file:// or private mode). Data will be lost on refresh. <b>Fix: open this from a web address instead of a downloaded file</b> — see the pinned note, or connect Cloud Sync so your data lives in your GitHub.</span>' +
+        '<button onclick="this.parentElement.style.display=\'none\'" style="background:transparent;border:1px solid #6A6258;color:#B8B4AB;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;flex-shrink:0">Dismiss</button>';
+      b.style.display = 'flex';
+    }
+
+    /* load() is synchronous for localStorage, but we also kick off an IDB read.
+       init() calls loadAsync() which awaits IDB when localStorage comes up empty. */
+    function load() {
+      try {
+        var hash = window.location.hash;
+        if (hash.indexOf('#import=') === 0) {
+          var jsonStr = decodeURIComponent(hash.substring(8));
+          var importedApp = JSON.parse(jsonStr);
+          if (importedApp && importedApp.cfg) {
+            localStorage.setItem(STORE_KEY, JSON.stringify(importedApp));
+            window._autoStartPip = true;
+            history.replaceState(null, document.title, window.location.pathname + window.location.search);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to import state from hash:', e);
+      }
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (!raw) raw = localStorage.getItem(STORE_KEY + '_bak');
+        if (raw) {
+          var p = JSON.parse(raw);
+          if (p && p.cfg) {
+            APP = mergeDefault(p, freshState());
+            // Syllabus upgrade check: clears cached chapters to reload the new ICAI syllabus defaults
+            if (!APP.meta.syllabusVersion || APP.meta.syllabusVersion < 3) {
+              if (APP.chapters) {
+                delete APP.chapters.fr;
+                delete APP.chapters.audit;
+                delete APP.chapters.dt;
+                delete APP.chapters.idt;
+                delete APP.chapters.ibs;
+                delete APP.chapters.seta;
+                delete APP.chapters.setb;
+                delete APP.chapters.setc;
+                delete APP.chapters.setd;
+              }
+              if (!APP.meta) APP.meta = {};
+              APP.meta.syllabusVersion = 3;
+              if (APP.finalRev) APP.finalRev.passes = null;
+              save(true);
+            }
+            resolveElectiveSyllabus();
+            applyClockCustomizations();
+            return true;
+          }
+        }
+      } catch (e) { }
+      APP = freshState();
+      if (!APP.meta) APP.meta = {};
+      APP.meta.syllabusVersion = 3;
+      resolveElectiveSyllabus();
+      applyClockCustomizations();
+      return false;
+    }
+    async function loadAsync() {
+      /* Already loaded from localStorage — nothing to do */
+      if (APP && APP.cfg && APP.cfg.setupDone) return;
+      /* localStorage was empty — try IndexedDB (covers Safari file:// case) */
+      try {
+        var raw = await idbGet();
+        if (raw) { var p = JSON.parse(raw); if (p && p.cfg) { APP = mergeDefault(p, freshState()); resolveElectiveSyllabus(); applyClockCustomizations(); return; } }
+      } catch (e) { }
+    }
+    function mergeDefault(l, f) { Object.keys(f).forEach(function (k) { if (l[k] == null) l[k] = f[k]; else if (f[k] !== null && typeof f[k] === 'object' && !Array.isArray(f[k]) && typeof l[k] === 'object' && l[k] !== null) { Object.keys(f[k]).forEach(function (s) { if (l[k][s] === undefined) l[k][s] = f[k][s]; }); } }); return l; }
+    function exportJSON() { var b = new Blob([JSON.stringify(APP, null, 2)], { type: 'application/json' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'ca-tracker-' + today() + '.json'; a.click(); setTimeout(function () { URL.revokeObjectURL(u); }, 800); toast('Backup exported', 'ok'); }
+    function importJSON(file) { var r = new FileReader(); r.onload = function (e) { try { var p = JSON.parse(e.target.result); if (!p || !p.cfg) throw 0; confirmDlg('Replace ALL current data with this backup?', function () { APP = mergeDefault(p, freshState()); resolveElectiveSyllabus(); applyClockCustomizations(); save(true); toast('Restored', 'ok'); setTimeout(function () { location.reload(); }, 500); }, { danger: true, yes: 'Replace' }); } catch (x) { toast('Invalid backup file', 'err'); } }; r.readAsText(file); }
+    function nukeAll() { confirmDlg('Delete ALL data permanently? This will wipe all your logs, tests, and settings.', function () { localStorage.removeItem(STORE_KEY); localStorage.removeItem(STORE_KEY + '_bak'); localStorage.removeItem('ca_gtoken'); localStorage.removeItem('ca_gid'); localStorage.removeItem('ca_fb_config'); localStorage.removeItem('ca_fb_synckey'); localStorage.removeItem('ca_fb_pushstate'); localStorage.removeItem('ca_fb_lastpull'); APP = null; var done = function () { location.reload(); }; try { idbSet('{}').then(done).catch(done); } catch (e) { done(); } }, { danger: true, yes: 'Delete everything' }); }
   </script>
 
 
@@ -5635,27 +5718,33 @@ function nukeAll() {
       // Never push blank data — must have name set (setupDone) to push anything
       if (!APP || !APP.cfg || !APP.cfg.setupDone) return;
 
-      // Enforce 2-minute write cooldown rate-limit to respect GitHub abuse limits
+      // Enforce 15-second write cooldown rate-limit
       var nowTime = getNow();
       var timeSinceLastWrite = nowTime - _lastCloudWriteTime;
-      if (timeSinceLastWrite < 120000) { // 120000ms = 2 minutes
+      if (timeSinceLastWrite < 15000) {
         _cloudDirty = true;
         if (_cloudT) clearTimeout(_cloudT);
-        _cloudT = setTimeout(syncToCloud, 120000 - timeSinceLastWrite);
+        _cloudT = setTimeout(syncToCloud, 15000 - timeSinceLastWrite);
         return;
       }
 
       if (_cloudBusy) { _cloudDirty = true; return; }
       _cloudBusy = true; syncUI('ing');
       try {
-        if (GID) {
+        if (GID && (getNow() - _lastCloudReadTime > 60000)) {
+          /* Pull first to avoid clobbering a newer cloud copy — but skip if we
+             already pulled within the last minute (e.g. right after a manual
+             Pull, or back-to-back pause/resume/end calls) to avoid doubling
+             our GitHub API usage on every single push. */
           await syncFromCloud(true);
         }
 
         var payloadObj = Object.assign({}, APP, { _ts: getNow() });
         var payload = JSON.stringify(payloadObj);
-        if (payload.length > 500 * 1024) {
-          toast('Cloud data is large (>500KB). Export a backup and prune old entries in settings.', 'err');
+        if (payload.length > 800 * 1024) {
+          toast('Cloud backup is approaching GitHub\'s 1MB-per-file limit. Export a JSON backup soon — data beyond 1MB gets truncated on sync.', 'err');
+        } else if (payload.length > 500 * 1024) {
+          toast('Cloud data is large (>500KB). Consider exporting a backup from Settings.', 'err');
         }
 
         var url = GID ? 'https://api.github.com/gists/' + GID : 'https://api.github.com/gists';
@@ -5672,10 +5761,10 @@ function nukeAll() {
         if (res.status === 403) {
           var body403 = {}; try { body403 = await res.json(); } catch (e) { }
           var msg403 = body403.message || 'forbidden';
-          // Rate limit — back off 15 minutes before next attempt
+          // Rate limit — back off 60 seconds before next attempt
           if (msg403.toLowerCase().indexOf('rate limit') >= 0 || msg403.toLowerCase().indexOf('secondary') >= 0) {
-            syncUI('err'); toast('GitHub rate limit hit — pausing sync for 15m.', 'err');
-            _cloudBusy = false; setTimeout(function () { _cloudDirty = false; syncToCloud(); }, 900000); // 15 mins
+            syncUI('err'); toast('GitHub rate limit hit — pausing sync for 60s.', 'err');
+            _cloudBusy = false; setTimeout(function () { _cloudDirty = false; syncToCloud(); }, 60000);
             return;
           }
           throw new Error('403: ' + msg403);
@@ -5726,25 +5815,43 @@ function nukeAll() {
         else $('tb-timer').classList.add('dn');
       }
     }
+    var _lastCloudReadTime = 0;
+    /* Throttled entry point for AUTOMATIC pulls (tab focus, reconnect, etc).
+       Manual "Pull" button and explicit flows should keep calling syncFromCloud() directly. */
+    function maybeSyncFromCloud(minGapMs) {
+      if (!GTOKEN || !GID) return;
+      var now = getNow();
+      if (now - _lastCloudReadTime < (minGapMs || 120000)) return; // skip — synced recently
+      syncFromCloud(true);
+    }
     async function syncFromCloud(silent) {
       if (!GTOKEN || !GID) { if (!silent) toast('No cloud connected.', 'err'); return false; }
+      _lastCloudReadTime = getNow();
       if (!silent) syncUI('ing');
       try {
         var res = await fetch('https://api.github.com/gists/' + GID, { headers: { 'Authorization': 'token ' + GTOKEN, 'Accept': 'application/vnd.github+json' } });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var j = await res.json();
-        var c = null;
+        var c = null, srcFile = null;
         if (j.files) {
           if (j.files['tracker-data-final.json'] && j.files['tracker-data-final.json'].content) {
-            c = j.files['tracker-data-final.json'].content;
+            c = j.files['tracker-data-final.json'].content; srcFile = j.files['tracker-data-final.json'];
           } else if (j.files['tracker-data.json'] && j.files['tracker-data.json'].content) {
             try {
               var testCloud = JSON.parse(j.files['tracker-data.json'].content);
-              if (isCloudDataCompatible(testCloud)) c = j.files['tracker-data.json'].content;
+              if (isCloudDataCompatible(testCloud)) { c = j.files['tracker-data.json'].content; srcFile = j.files['tracker-data.json']; }
             } catch (e) { }
           }
         }
         if (!c) throw new Error('No compatible CA Final tracker backup found in this Gist.');
+        /* GitHub truncates file `content` in this response past ~1MB and sets
+           truncated:true — fetch the untruncated body via raw_url instead of
+           silently working with partial (and likely unparseable) JSON. */
+        if (srcFile && srcFile.truncated && srcFile.raw_url) {
+          var rawRes = await fetch(srcFile.raw_url, { headers: { 'Authorization': 'token ' + GTOKEN } });
+          if (!rawRes.ok) throw new Error('Cloud data exceeds 1MB and could not be fetched in full (HTTP ' + rawRes.status + ').');
+          c = await rawRes.text();
+        }
 
         var cloud;
         try {
@@ -6570,6 +6677,394 @@ function nukeAll() {
 
 
   <script>
+    /* ═══════════ FIREBASE SYNC (recommended — replaces GitHub Gist for cloud sync) ═══════════
+       Why this exists: GitHub Gists cap a file at ~1MB (older data gets silently truncated
+       unless you fetch raw_url) and their API applies an "abuse/secondary" rate limit that a
+       chatty client like a running Pomodoro timer can trip. Firestore's free (Spark) tier gives
+       1GiB storage + 50,000 reads/day + 20,000 writes/day — no time limit, no card required.
+
+       This talks to Firestore's plain REST API via fetch() — no Firebase SDK, no dynamic
+       import() of a remote module. That's deliberate: browsers refuse to dynamically import
+       cross-origin ES modules from a page opened via file:// ("Failed to fetch dynamically
+       imported module"), which is how most people run this single-file tracker. Plain fetch()
+       has no such restriction, so this works identically on file:// and once hosted (e.g. GitHub
+       Pages). It requires open-but-obscure Firestore rules keyed on your sync key — see the hint
+       text in Settings.
+
+       Only records that actually changed get pushed (see fbHash below), so push volume stays
+       flat. Pulls currently re-list each collection in full each time (no incremental "changed
+       since" filtering) — Firestore REST can't query on built-in metadata like updateTime, and
+       adding a queryable timestamp field would need field-transform writes. For a personal
+       tracker's realistic data volume this is still fast and comfortably inside the free tier;
+       revisit with a since-cursor only if the dataset gets huge.
+       Gist sync above is left intact as a fallback/migration source; if Firebase is connected,
+       it takes over as the ONLY thing that talks to the network automatically. */
+    var FB_CONFIG = null, FB_SYNCKEY = null;
+    var _fbPushT = null, _fbPushBusy = false, _fbPushDirty = false, _fbLastPushTime = 0;
+    var _fbLastPullTime = 0;
+    var FB_COLLECTIONS = ['entries', 'lectures', 'tests', 'flashpoints'];
+
+    function loadFB() {
+      try { FB_CONFIG = JSON.parse(localStorage.getItem('ca_fb_config') || 'null'); } catch (e) { FB_CONFIG = null; }
+      FB_SYNCKEY = localStorage.getItem('ca_fb_synckey') || null;
+    }
+    function saveFBCreds() {
+      if (FB_CONFIG) localStorage.setItem('ca_fb_config', JSON.stringify(FB_CONFIG)); else localStorage.removeItem('ca_fb_config');
+      if (FB_SYNCKEY) localStorage.setItem('ca_fb_synckey', FB_SYNCKEY); else localStorage.removeItem('ca_fb_synckey');
+    }
+
+    /* ── Google Sign-In (Google Identity Services) ──
+       Fill in GOOGLE_CLIENT_ID with your OAuth 2.0 Web Client ID — get one free at
+       console.cloud.google.com → APIs & Services → Credentials → Create Credentials →
+       OAuth client ID → Web application. Add your local/dev URL (e.g. http://localhost:PORT)
+       and your production URL under "Authorized JavaScript origins".
+       Optionally also hardcode DEFAULT_FB_CONFIG with your own Firebase project's config
+       (Project settings → Your apps → SDK setup and configuration) so people never have to
+       paste it manually — Google Sign-In only supplies an identity, it doesn't create a
+       Firebase project for you; Firestore rules still gate access via the trackers/{key} path. */
+    var GOOGLE_CLIENT_ID = '191158321948-4p96ucidsmeeih1us72h4onnngnfa9r3.apps.googleusercontent.com';
+    var DEFAULT_FB_CONFIG = null;
+    var _googleProfile = null;
+
+    function loadGoogleProfile() {
+      try { _googleProfile = JSON.parse(localStorage.getItem('ca_google_profile') || 'null'); } catch (e) { _googleProfile = null; }
+    }
+    function saveGoogleProfile() {
+      if (_googleProfile) localStorage.setItem('ca_google_profile', JSON.stringify(_googleProfile));
+      else localStorage.removeItem('ca_google_profile');
+    }
+    /* Deterministic per-account sync key — the same Google account always maps to the
+       same Firestore path, so there's nothing to generate or copy between devices. */
+    function googleSyncKey() { return _googleProfile ? 'g_' + _googleProfile.sub : null; }
+
+    var _gTokenClient = null;
+    function googleSignIn() {
+      return new Promise(function (resolve, reject) {
+        if (!window.google || !google.accounts || !google.accounts.oauth2) { reject(new Error('Google Sign-In hasn\'t loaded yet — check your connection and try again.')); return; }
+        if (!GOOGLE_CLIENT_ID) { reject(new Error('Google Sign-In isn\'t configured yet (missing client ID).')); return; }
+        try {
+          _gTokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: 'openid email profile',
+            callback: async function (resp) {
+              if (!resp || resp.error) { reject(new Error((resp && resp.error_description) || (resp && resp.error) || 'Google sign-in was cancelled')); return; }
+              try {
+                var r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { 'Authorization': 'Bearer ' + resp.access_token } });
+                if (!r.ok) throw new Error('Could not read your Google profile');
+                var p = await r.json();
+                _googleProfile = { name: p.name || '', email: p.email || '', picture: p.picture || '', sub: p.sub };
+                saveGoogleProfile();
+                resolve(_googleProfile);
+              } catch (e) { reject(e); }
+            },
+            error_callback: function (err) { reject(new Error((err && err.message) || 'Google sign-in was cancelled')); }
+          });
+          _gTokenClient.requestAccessToken({ prompt: '' });
+        } catch (e) { reject(e); }
+      });
+    }
+    function googleSignOut() {
+      _googleProfile = null; saveGoogleProfile();
+      if (window.google && google.accounts && google.accounts.id) { try { google.accounts.id.disableAutoSelect(); } catch (e) { } }
+    }
+    function fbGenKey() {
+      var bytes = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(bytes);
+      return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
+    /* Firebase's console gives people a JS snippet like:
+         const firebaseConfig = { apiKey: "...", ... };
+       — unquoted keys, a `const X =` prefix, // comments, a trailing `;`.
+       That's not valid JSON, so a strict JSON.parse rejects it. This accepts
+       either that snippet or a proper JSON object and normalizes it. */
+    function parseFirebaseConfig(raw) {
+      var s = (raw || '').trim();
+      if (!s) throw new Error('Paste your Firebase config first');
+      // Try strict JSON first (covers people who already tidy it up)
+      try { var direct = JSON.parse(s); if (direct && direct.projectId && direct.apiKey) return direct; } catch (e) { }
+      // Strip // line comments (not inside strings — Firebase config values never contain "//")
+      s = s.replace(/\/\/[^\n]*$/gm, '');
+      // Isolate just the {...} object literal, dropping any `const x =` / `export default` wrapper and trailing `;`
+      var start = s.indexOf('{'), end = s.lastIndexOf('}');
+      if (start === -1 || end === -1 || end < start) throw new Error('Couldn\'t find a { ... } config object in what you pasted');
+      s = s.slice(start, end + 1);
+      // Quote unquoted object keys: apiKey: "..."  ->  "apiKey": "..."
+      s = s.replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)(\s*:)/g, '$1"$2"$3');
+      // Drop trailing commas before } or ]
+      s = s.replace(/,(\s*[}\]])/g, '$1');
+      var cfg;
+      try { cfg = JSON.parse(s); } catch (e) { throw new Error('Couldn\'t read that config — paste the full object from Firebase\'s "SDK setup and configuration" page'); }
+      if (!cfg.projectId || !cfg.apiKey) throw new Error('That config is missing apiKey/projectId — paste the full object');
+      return cfg;
+    }
+    function fbSyncUI(state) {
+      var d = $('sync-dot'), t = $('sync-txt'); if (!d) return;
+      d.className = 'dot ' + (state === 'ok' ? 's-ok' : state === 'err' ? 's-err' : state === 'ing' ? 's-ing' : 's-off');
+      t.textContent = state === 'ok' ? 'synced' : state === 'err' ? 'error' : state === 'ing' ? 'syncing…' : FB_CONFIG ? 'idle' : 'local';
+      if ($('sync-i')) $('sync-i').title = state === 'ok' && APP.meta.lastSyncAt ? ('Last synced ' + relTime(APP.meta.lastSyncAt)) : FB_CONFIG ? 'Firebase sync on' : 'Local only — set up in Settings';
+    }
+
+    /* ── Firestore REST helpers: plain fetch(), JS-object <-> typed-Value conversion ── */
+    function fbBasePath() { return 'trackers/' + FB_SYNCKEY; }
+    function fsBaseUrl() { return 'https://firestore.googleapis.com/v1/projects/' + FB_CONFIG.projectId + '/databases/(default)/documents'; }
+    function fsDocUrl(path) { return fsBaseUrl() + '/' + path + '?key=' + encodeURIComponent(FB_CONFIG.apiKey); }
+    function fsEncode(v) {
+      if (v === null || v === undefined) return { nullValue: null };
+      if (typeof v === 'boolean') return { booleanValue: v };
+      if (typeof v === 'number') return isFinite(v) && Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+      if (typeof v === 'string') return { stringValue: v };
+      if (Array.isArray(v)) return { arrayValue: { values: v.map(fsEncode) } };
+      if (typeof v === 'object') return { mapValue: { fields: fsEncodeFields(v) } };
+      return { stringValue: String(v) };
+    }
+    function fsEncodeFields(obj) {
+      var fields = {};
+      Object.keys(obj || {}).forEach(function (k) { if (obj[k] !== undefined) fields[k] = fsEncode(obj[k]); });
+      return fields;
+    }
+    function fsDecode(v) {
+      if (!v) return null;
+      if ('nullValue' in v) return null;
+      if ('booleanValue' in v) return v.booleanValue;
+      if ('integerValue' in v) return parseInt(v.integerValue, 10);
+      if ('doubleValue' in v) return v.doubleValue;
+      if ('stringValue' in v) return v.stringValue;
+      if ('timestampValue' in v) return v.timestampValue;
+      if ('arrayValue' in v) return (v.arrayValue.values || []).map(fsDecode);
+      if ('mapValue' in v) return fsDecodeFields(v.mapValue.fields || {});
+      return null;
+    }
+    function fsDecodeFields(fields) {
+      var o = {};
+      Object.keys(fields || {}).forEach(function (k) { o[k] = fsDecode(fields[k]); });
+      return o;
+    }
+    /* List every document in a collection, following pagination. Returns [] for an
+       empty/not-yet-created collection (Firestore doesn't need collections "created"). */
+    async function fsListCollection(path) {
+      var docs = [], pageToken = null;
+      do {
+        var url = fsBaseUrl() + '/' + path + '?key=' + encodeURIComponent(FB_CONFIG.apiKey) + '&pageSize=300' + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '');
+        var res = await fetch(url);
+        if (!res.ok) { if (res.status === 404) return docs; throw new Error('Firestore list failed (' + res.status + ')'); }
+        var j = await res.json();
+        (j.documents || []).forEach(function (d) { docs.push(d); });
+        pageToken = j.nextPageToken || null;
+      } while (pageToken);
+      return docs;
+    }
+    function fsDocId(d) { return d.name.split('/').pop(); }
+
+    async function fbInit() {
+      if (!FB_CONFIG || !FB_SYNCKEY) throw new Error('Firebase not configured');
+      if (!FB_CONFIG.projectId || !FB_CONFIG.apiKey) throw new Error('Firebase config is missing projectId/apiKey');
+      return true;
+    }
+
+    async function connectFirebase(configStr, syncKey) {
+      var cfg;
+      try { cfg = parseFirebaseConfig(configStr); }
+      catch (e) { toast(e.message, 'err'); return; }
+      syncKey = (syncKey || '').trim();
+      if (syncKey.length < 8) { toast('Enter or generate a sync key first', 'err'); return; }
+      FB_CONFIG = cfg; FB_SYNCKEY = syncKey; saveFBCreds();
+      try {
+        await fbInit();
+        toast('Connected — pulling…', 'ok');
+        await fbPull(true);
+        if (APP.entries.length || APP.lectures.length || APP.tests.length || APP.flashpoints.length) fbQueuePush(true);
+        renderSettings(); showPage(currentPage);
+      } catch (e) {
+        toast('Firebase connect failed: ' + e.message, 'err');
+        FB_CONFIG = null; FB_SYNCKEY = null; saveFBCreds();
+        renderSettings();
+      }
+    }
+    function disconnectFirebase() {
+      confirmDlg('Disconnect Firebase sync? Local data stays; the cloud copy is preserved.', function () {
+        FB_CONFIG = null; FB_SYNCKEY = null; saveFBCreds();
+        /* Clear the per-record hash cache too — otherwise reconnecting later (even to a
+           different project/key) would think old records are unchanged and skip pushing them. */
+        localStorage.removeItem('ca_fb_pushstate');
+        fbSyncUI('off'); renderSettings();
+      });
+    }
+
+    /* Cheap content hash so we only ever push docs that actually changed. */
+    function fbHash(obj) {
+      var s = JSON.stringify(obj), h = 0;
+      for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+      return s.length + ':' + h;
+    }
+    function fbLoadPushState() { try { return JSON.parse(localStorage.getItem('ca_fb_pushstate') || '{}'); } catch (e) { return {}; } }
+    function fbSavePushState(st) { try { localStorage.setItem('ca_fb_pushstate', JSON.stringify(st)); } catch (e) { } }
+
+    function fbQueuePush(immediate) {
+      if (!FB_CONFIG || !FB_SYNCKEY) return;
+      _fbPushDirty = true;
+      if (_fbPushT) clearTimeout(_fbPushT);
+      _fbPushT = setTimeout(fbPush, immediate ? 800 : 20000);
+    }
+
+    async function fbPush() {
+      if (!FB_CONFIG || !FB_SYNCKEY) return;
+      if (!APP || !APP.cfg || !APP.cfg.setupDone) return;
+      if (_fbPushBusy) { _fbPushDirty = true; return; }
+      _fbPushBusy = true; fbSyncUI('ing');
+      try {
+        await fbInit();
+        var st = fbLoadPushState();
+        var collMap = { entries: APP.entries, lectures: APP.lectures, tests: APP.tests, flashpoints: APP.flashpoints };
+        var ops = [];
+        FB_COLLECTIONS.forEach(function (col) {
+          if (!st[col]) st[col] = {};
+          var seen = {};
+          (collMap[col] || []).forEach(function (item) {
+            if (!item.id) return;
+            seen[item.id] = true;
+            var h = fbHash(item);
+            if (st[col][item.id] !== h) ops.push({ col: col, id: item.id, data: item, h: h });
+          });
+          Object.keys(st[col]).forEach(function (id) { if (!seen[id]) ops.push({ col: col, id: id, del: true }); });
+        });
+
+        for (var i = 0; i < ops.length; i++) {
+          var op = ops[i], url = fsDocUrl(fbBasePath() + '/' + op.col + '/' + op.id);
+          if (op.del) {
+            var dr = await fetch(url, { method: 'DELETE' });
+            if (!dr.ok && dr.status !== 404) throw new Error('Delete failed (' + dr.status + ')');
+          } else {
+            var pr = await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: fsEncodeFields(op.data) }) });
+            if (!pr.ok) throw new Error('Write failed (' + pr.status + ') — check your Firestore rules allow writes under trackers/' + FB_SYNCKEY);
+          }
+        }
+        ops.forEach(function (op) { if (op.del) delete st[op.col][op.id]; else st[op.col][op.id] = op.h; });
+        fbSavePushState(st);
+
+        var tombKeys = Object.keys(APP.deletedIds || {});
+        for (var j = 0; j < tombKeys.length; j++) {
+          var id = tombKeys[j], turl = fsDocUrl(fbBasePath() + '/tombstones/' + id);
+          var tr = await fetch(turl, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: fsEncodeFields({ deletedAt: APP.deletedIds[id] }) }) });
+          if (!tr.ok) throw new Error('Tombstone write failed (' + tr.status + ')');
+        }
+
+        var metaUrl = fsDocUrl(fbBasePath() + '/meta/main');
+        var metaBody = { fields: fsEncodeFields({ cfg: APP.cfg, subjectDue: APP.subjectDue, chapters: APP.chapters, frTrack: APP.frTrack, _ts: getNow() }) };
+        var mr = await fetch(metaUrl, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(metaBody) });
+        if (!mr.ok) throw new Error('Meta write failed (' + mr.status + ')');
+
+        APP.meta.lastSyncAt = getNow();
+        _fbLastPushTime = getNow();
+        fbSyncUI('ok');
+      } catch (e) {
+        fbSyncUI('err');
+        toast('Firebase sync failed: ' + e.message, 'err');
+      } finally {
+        _fbPushBusy = false;
+        if (_fbPushDirty) { _fbPushDirty = false; setTimeout(fbPush, 2000); }
+      }
+    }
+
+    async function fbPull(silent) {
+      if (!FB_CONFIG || !FB_SYNCKEY) { if (!silent) toast('No cloud connected.', 'err'); return false; }
+      if (!silent) fbSyncUI('ing');
+      try {
+        await fbInit();
+
+        var metaRes = await fetch(fsDocUrl(fbBasePath() + '/meta/main'));
+        if (metaRes.ok) {
+          var metaDoc = await metaRes.json();
+          if (metaDoc.fields) {
+            var m = fsDecodeFields(metaDoc.fields);
+            if (!APP.meta.lastSyncAt || (m._ts || 0) > APP.meta.lastSyncAt) {
+              if (m.cfg) APP.cfg = mergeDefault(m.cfg, APP.cfg);
+              APP.subjectDue = Object.assign({}, APP.subjectDue, m.subjectDue || {});
+              APP.chapters = Object.assign({}, APP.chapters, m.chapters || {});
+              APP.frTrack = Object.assign({}, APP.frTrack, m.frTrack || {});
+            }
+          }
+        } else if (metaRes.status !== 404) {
+          throw new Error('Could not reach Firebase (' + metaRes.status + ') — check your config and Firestore rules');
+        }
+
+        var tombDocs = await fsListCollection(fbBasePath() + '/tombstones');
+        tombDocs.forEach(function (d) { registerDeletion(fsDocId(d)); });
+
+        var st = fbLoadPushState();
+        for (var ci = 0; ci < FB_COLLECTIONS.length; ci++) {
+          var col = FB_COLLECTIONS[ci];
+          var docs = await fsListCollection(fbBasePath() + '/' + col);
+          docs.forEach(function (d) {
+            var id = fsDocId(d);
+            if (APP.deletedIds && APP.deletedIds[id]) return; // locally deleted — don't resurrect
+            var clean = fsDecodeFields(d.fields || {});
+            if (!clean.id) clean.id = id;
+            var arr = APP[col];
+            var idx = arr.findIndex(function (x) { return x.id === id; });
+            if (idx >= 0) arr[idx] = clean; else arr.push(clean);
+            if (!st[col]) st[col] = {};
+            st[col][id] = fbHash(clean);
+          });
+        }
+        tombDocs.forEach(function (d) {
+          var id = fsDocId(d);
+          FB_COLLECTIONS.forEach(function (col) {
+            APP[col] = APP[col].filter(function (x) { return x.id !== id; });
+            if (st[col]) delete st[col][id];
+          });
+        });
+        fbSavePushState(st);
+
+        APP.meta.lastSyncAt = getNow();
+        resolveElectiveSyllabus(); applyClockCustomizations();
+        save(false, true);
+        if (typeof syncTimersState === 'function') syncTimersState(!!APP.active, !!APP.activeTest);
+        fbSyncUI('ok');
+        if (!silent) toast('Synced from cloud', 'ok');
+        return true;
+      } catch (e) {
+        fbSyncUI('err');
+        if (!silent) toast('Firebase pull failed: ' + e.message, 'err');
+        return false;
+      }
+    }
+    function maybeFbPull(minGapMs) {
+      if (!FB_CONFIG || !FB_SYNCKEY) return;
+      var now = getNow();
+      if (now - _fbLastPullTime < (minGapMs || 120000)) return;
+      _fbLastPullTime = now;
+      fbPull(true);
+    }
+
+    /* One-time helper: pull an existing GitHub Gist backup in, so switching to Firebase
+       doesn't mean losing history logged before the migration. Uses the Gist functions
+       defined above but never wires Gist back into automatic sync. */
+    async function migrateFromGist(tok, gid) {
+      if (!tok || !gid) { toast('Token and Gist ID required', 'err'); return; }
+      try {
+        var r = await fetch('https://api.github.com/gists/' + gid, { headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github+json' } });
+        if (!r.ok) throw new Error('Cannot access gist (' + r.status + ')');
+        var j = await r.json();
+        var file = (j.files && (j.files['tracker-data-final.json'] || j.files['tracker-data.json']));
+        if (!file) throw new Error('No tracker backup found in that Gist');
+        var content = file.content;
+        if (file.truncated && file.raw_url) { var rr = await fetch(file.raw_url); content = await rr.text(); }
+        var cloud = JSON.parse(content);
+        if (!cloud || !cloud.cfg) throw new Error('Backup file looks empty or corrupted');
+        confirmDlg('Import this Gist backup into your local data now, then push it to Firebase?', function () {
+          APP = mergeDefault(cloud, freshState());
+          resolveElectiveSyllabus(); applyClockCustomizations();
+          save(true, true);
+          fbQueuePush(true);
+          toast('Imported — pushing to Firebase…', 'ok');
+          renderSettings(); showPage(currentPage);
+        }, { yes: 'Import' });
+      } catch (e) { toast('Migration failed: ' + e.message, 'err'); }
+    }
+  </script>
+
+
+  <script>
     /* ═══════════ SETUP ═══════════ */
     function alignPills(retryCount) {
       retryCount = retryCount || 0;
@@ -6627,6 +7122,66 @@ function nukeAll() {
 
       $('su-go').onclick = doSetup; suPickGroup('both'); suRenderRev();
       setTimeout(alignPills, 0);
+
+      $('su-google-btn').onclick = async function () {
+        var btn = $('su-google-btn'); btn.disabled = true;
+        try {
+          var profile = await googleSignIn();
+          $('su-name').value = profile.name || $('su-name').value;
+          var cfg = FB_CONFIG || DEFAULT_FB_CONFIG;
+          if (cfg) {
+            $('su-google-status').textContent = 'Signed in as ' + profile.email + ' — checking for existing data…';
+            FB_CONFIG = cfg; FB_SYNCKEY = googleSyncKey(); saveFBCreds();
+            try {
+              await fbInit();
+              var ok = await fbPull(true);
+              if (ok && APP.cfg && APP.cfg.setupDone) {
+                toast('Welcome back — restoring your data…', 'ok');
+                setTimeout(function () { location.reload(); }, 700);
+                return;
+              }
+            } catch (e) { /* no existing backup under this account yet — continue as a new user */ }
+            $('su-google-status').textContent = 'Signed in as ' + profile.email + ' — your data will sync to this account.';
+          } else {
+            $('su-google-status').textContent = 'Signed in as ' + profile.email + '. Add a Firebase config in Settings → Cloud sync after setup to turn on cross-device sync.';
+          }
+        } catch (e) {
+          toast(e.message, 'err');
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      document.querySelectorAll('#su-restore-mode [data-m]').forEach(function (b) {
+        b.onclick = function () {
+          document.querySelectorAll('#su-restore-mode [data-m]').forEach(function (x) { x.classList.remove('on'); });
+          b.classList.add('on');
+          $('su-fb-restore').classList.toggle('dn', b.dataset.m !== 'fb');
+          $('su-gist-restore').classList.toggle('dn', b.dataset.m !== 'gist');
+          alignPills();
+        };
+      });
+
+      $('su-fb-restore-btn').onclick = async function () {
+        var cfgStr = $('su-fb-cfg').value.trim(), key = $('su-fb-key').value.trim();
+        if (!cfgStr || !key) { toast('Paste your Firebase config and sync key first', 'err'); return; }
+        var cfg;
+        try { cfg = parseFirebaseConfig(cfgStr); }
+        catch (e) { toast(e.message, 'err'); return; }
+        var btn = $('su-fb-restore-btn'); btn.textContent = 'Connecting…'; btn.disabled = true;
+        try {
+          FB_CONFIG = cfg; FB_SYNCKEY = key; saveFBCreds();
+          await fbInit();
+          var ok = await fbPull(true);
+          if (!ok || !APP.cfg || !APP.cfg.setupDone) throw new Error('No backup found for that sync key. Double-check the config and key match your other device.');
+          toast('Found backup · restoring…', 'ok');
+          setTimeout(function () { location.reload(); }, 700);
+        } catch (e) {
+          FB_CONFIG = null; FB_SYNCKEY = null; saveFBCreds();
+          toast(e.message, 'err');
+          btn.textContent = '↓ Restore my data'; btn.disabled = false;
+        }
+      };
 
       $('su-restore').onclick = async function () {
         var tok = $('su-tok').value.trim();
@@ -6703,7 +7258,9 @@ function nukeAll() {
         resolveElectiveSyllabus();
         applyClockCustomizations();
         activeSubjects().forEach(function (s) { if (!APP.chapters[s]) APP.chapters[s] = SYL[s].chapters.slice(); });
-        save(true); $('setup').style.display = 'none'; $('app').classList.remove('dn'); wireShell(); refreshTop(); showPage('today'); toast('Welcome, ' + n.split(' ')[0] + '!', 'ok');
+        save(true);
+        if (_googleProfile && FB_CONFIG && FB_SYNCKEY && FB_SYNCKEY === googleSyncKey()) { fbQueuePush(true); }
+        $('setup').style.display = 'none'; $('app').classList.remove('dn'); wireShell(); refreshTop(); showPage('today'); toast('Welcome, ' + n.split(' ')[0] + '!', 'ok');
       } catch (err) {
         console.error("Error during doSetup:", err);
         toast("Setup failed: " + err.message, "err");
@@ -6711,32 +7268,26 @@ function nukeAll() {
     }
     /* ═══════════ INIT / ROUTING ═══════════ */
     async function init() {
+      // Proactive storage health check — write a probe, read it back
       var storageWorks = false;
-  try {
-    localStorage.setItem('__probe', '1');
-    storageWorks = (localStorage.getItem('__probe') === '1');
-    localStorage.removeItem('__probe');
-  } catch (e) { storageWorks = false; }
-  if (!storageWorks) { _storageOK = false; }
+      try { localStorage.setItem('__probe', '1'); storageWorks = (localStorage.getItem('__probe') === '1'); localStorage.removeItem('__probe'); } catch (e) { storageWorks = false; }
 
-  loadGist(); 
-  
-  // Wait for localforage to fetch data
-  await loadAsync(); 
-  
-  resolveElectiveSyllabus(); 
-  applyClockCustomizations(); 
-  
-  if (!storageWorks) { storageFailBanner(); }
-  applyTheme(); 
-  applyLayout();
+      if (!storageWorks) { _storageOK = false; }
+      loadGist(); loadFB(); loadGoogleProfile(); load();
+      /* If localStorage was empty, try IndexedDB (Safari file:// case) */
+      await loadAsync();
+      if (pruneDeletedIds()) save(false, true);
+      resolveElectiveSyllabus(); applyClockCustomizations();
+      if (!storageWorks) { storageFailBanner(); }
+      applyTheme(); applyLayout();
       if (!APP.cfg.setupDone) {
-        /* No local data — but if a Gist is connected, try restoring from cloud before showing setup */
-        if (GTOKEN && GID) { syncUI('ing'); var got = await syncFromCloud(true); if (got && APP.cfg.setupDone) {/* fall through to app */ } else { startSetup(); return; } }
+        /* No local data — but if a cloud sync is connected, try restoring before showing setup */
+        if (FB_CONFIG && FB_SYNCKEY) { fbSyncUI('ing'); var gotFb = await fbPull(true); if (gotFb && APP.cfg.setupDone) {/* fall through to app */ } else { startSetup(); return; } }
+        else if (GTOKEN && GID) { syncUI('ing'); var got = await syncFromCloud(true); if (got && APP.cfg.setupDone) {/* fall through to app */ } else { startSetup(); return; } }
         else { startSetup(); return; }
       }
       $('setup').style.display = 'none'; $('app').classList.remove('dn');
-      syncUI(GTOKEN ? (GID ? 'ok' : 'idle') : 'off');
+      syncUI((FB_CONFIG && FB_SYNCKEY) ? 'ok' : GTOKEN ? (GID ? 'ok' : 'idle') : 'off');
       var startPg = localStorage.getItem('ca_curr_page') || 'today';
       wireShell(); refreshTop(); showPage(startPg);
       if (!window._topT) window._topT = setInterval(refreshTop, 30000);
@@ -6752,7 +7303,7 @@ function nukeAll() {
         ZenAudio.startSilence();
         startTestLoop();
       }
-      if (GTOKEN && GID) syncFromCloud(true);
+      if (FB_CONFIG && FB_SYNCKEY) fbPull(true); else if (GTOKEN && GID) syncFromCloud(true);
       if (window._autoStartPip) {
         window._autoStartPip = false;
         setTimeout(function () {
@@ -6920,7 +7471,15 @@ function nukeAll() {
         }
       }
 
-      if (!s._lastSaved || now - s._lastSaved > 60000) { s._lastSaved = now; save(); }
+      if (!s._lastSaved || now - s._lastSaved > 60000) {
+        s._lastSaved = now;
+        /* Local save (localStorage/IndexedDB) every 60s — free, no rate limit.
+           Cloud push is throttled separately (every 5 min while a timer runs)
+           so long pomodoro/live sessions don't hammer the GitHub Gist API. */
+        var cloudDue = !s._lastCloudQueued || now - s._lastCloudQueued > 300000;
+        if (cloudDue) s._lastCloudQueued = now;
+        save(false, !cloudDue);
+      }
       paintTimer(s);
     }
     function paintTimer(s) {
@@ -8398,10 +8957,30 @@ function nukeAll() {
       // exemptions
       h += '<div class="card mb10"><div class="slbl mb12">Exemptions</div><div id="se-ex"></div><div class="xs muted mt10" style="line-height:1.55"><b style="color:var(--amber)">Standard:</b> 40% each + 50% aggregate. <b style="color:var(--purple)">Permanent:</b> 50% each.</div></div>';
       // sync
-      h += '<div class="card mb10"><div class="slbl mb12">Cloud sync (GitHub Gist)</div>';
-      if (!GTOKEN) h += '<div class="alert al-blue">Optional cloud backup. Your data already saves locally. Connect this to also back up to a private GitHub Gist — useful if you use multiple devices.</div><div class="fld"><label>GitHub Personal Access Token</label><div class="row wrap" style="gap:8px"><input type="password" id="g-tok" placeholder="ghp_… (paste token here)" style="flex:1;min-width:200px"><button class="btn btn-p btn-sm" id="g-con">Connect</button></div><div class="hint mt6"><b>How to get a token:</b> Open <a href="https://github.com/settings/tokens/new?scopes=gist&description=CA+Tracker+Sync" target="_blank">this link</a> → scroll to bottom → <b>Generate token</b> → copy the <code>ghp_…</code> string. Gist scope is pre-selected.</div></div>';
-      else h += '<div class="alert" style="background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);color:var(--green)">Connected · last sync ' + relTime(APP.meta.lastSyncAt) + '</div>' +
-        (GID ? '<div class="fld" style="margin-bottom:10px"><label>Your Gist ID <span style="font-weight:400;color:var(--dim)">(copy this to manually link another device in Settings)</span></label><div class="row" style="gap:8px"><input id="g-gid-disp" value="' + esc(GID) + '" readonly style="font-family:\'JetBrains Mono\',monospace;font-size:11px;flex:1"><button class="btn btn-sm btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText(\'' + esc(GID) + '\').then(function(){toast(\'Gist ID copied\',\'ok\');})">Copy</button><button class="btn btn-sm btn-ghost" onclick="window.open(\'https://gist.github.com/\'+GID,\'_blank\')">Open</button></div></div>' : '') + '<div class="row wrap" style="gap:8px"><button class="btn btn-suc btn-sm" id="g-push">↑ Push now</button><button class="btn btn-warn btn-sm" id="g-pull">↓ Pull</button><button class="btn btn-dan btn-sm" id="g-dis">Disconnect</button></div>';
+      h += '<div class="card mb10"><div class="slbl mb12">Cloud sync</div>';
+      h += '<div class="row wrap" style="gap:10px;align-items:center;margin-bottom:14px">' +
+        '<button class="btn btn-sm" id="se-google-btn" type="button" style="background:#fff;color:#1f1f1f;display:inline-flex;align-items:center;gap:8px">' +
+        '<svg width="14" height="14" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.6l-6.5-5.5C29.6 34.7 26.9 36 24 36c-5.3 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 3-3.2 5.4-6 6.9l6.5 5.5C39.9 37.1 44 31.1 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>' +
+        (_googleProfile ? 'Switch Google account' : 'Sign in with Google') + '</button>' +
+        (_googleProfile ? '<span class="xs muted">Signed in as ' + esc(_googleProfile.email) + '</span>' : '<span class="xs muted">Fetches your name and gives every device the same sync key automatically — no key to copy.</span>') +
+        '</div>';
+      if (FB_CONFIG && FB_SYNCKEY) {
+        h += '<div class="alert" style="background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);color:var(--green)">Firebase connected · last sync ' + relTime(APP.meta.lastSyncAt) + '</div>' +
+          '<div class="fld" style="margin-bottom:10px"><label>Your sync key <span style="font-weight:400;color:var(--dim)">(enter this — plus the same Firebase config — on other devices)</span></label>' +
+          '<div class="row" style="gap:8px"><input id="fb-key-disp" value="' + esc(FB_SYNCKEY) + '" readonly style="font-family:\'JetBrains Mono\',monospace;font-size:11px;flex:1"><button class="btn btn-sm btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText(\'' + esc(FB_SYNCKEY) + '\').then(function(){toast(\'Sync key copied\',\'ok\');})">Copy</button></div>' +
+          '<div class="hint mt6">Anyone with this key AND your Firebase config can read/write this data — treat it like a password.</div></div>' +
+          '<div class="row wrap" style="gap:8px"><button class="btn btn-suc btn-sm" id="fb-push">↑ Push now</button><button class="btn btn-warn btn-sm" id="fb-pull">↓ Pull</button><button class="btn btn-dan btn-sm" id="fb-dis">Disconnect</button></div>';
+      } else {
+        h += '<div class="alert al-blue">Free, no card required. Firebase\'s Spark plan gives 1GiB storage + 50k reads/20k writes a day — no per-file size cap and no rate-limit surprises during long Pomodoro sessions.</div>' +
+          '<div class="fld"><label>Firebase config <span style="font-weight:400;color:var(--dim)">(Project settings → Your apps → SDK setup → Config object)</span></label><textarea id="fb-cfg" rows="4" placeholder=\'{"apiKey":"...","projectId":"...","...":"..."}\' style="width:100%;font-family:\'JetBrains Mono\',monospace;font-size:11px"></textarea></div>' +
+          '<div class="fld"><label>Sync key <span style="font-weight:400;color:var(--dim)">(shared secret across your devices — generate once, reuse everywhere)</span></label><div class="row wrap" style="gap:8px"><input id="fb-key" placeholder="paste on other devices, or generate below" style="flex:1;min-width:180px;font-family:\'JetBrains Mono\',monospace;font-size:11px"><button class="btn btn-sm btn-ghost" id="fb-genkey">Generate</button></div></div>' +
+          '<button class="btn btn-p btn-sm" id="fb-con">Connect</button>' +
+          '<div class="hint mt6"><b>Setup (~2 min):</b> 1) Create a free project at <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> 2) Build → Firestore Database → Create (production mode) 3) In Rules, allow read/write only under <code>trackers/{syncKey}</code> using your sync key as the secret 4) Project settings → Your apps → add a Web app → copy the config object here.</div>';
+        if (GTOKEN && GID) {
+          h += '<div class="divider" style="margin:12px 0"></div><div class="xs muted mb8">Currently syncing via the legacy GitHub Gist method (still active as a fallback). Connecting Firebase above will automatically push your existing local data to it — your Gist backup stays untouched.</div>' +
+            '<div class="row wrap" style="gap:8px"><button class="btn btn-sm btn-ghost" id="g-push">↑ Push to Gist</button><button class="btn btn-sm btn-ghost" id="g-pull">↓ Pull from Gist</button><button class="btn btn-dan btn-sm" id="g-dis">Disconnect Gist</button></div>';
+        }
+      }
       h += '</div>';
       // pomodoro
       var p = c.pomo; h += '<div class="card mb10"><div class="slbl mb12">Pomodoro defaults</div><div class="fld3"><div class="fld"><label>Work</label><input type="number" id="po-w" min="1" value="' + p.workMin + '"></div><div class="fld"><label>Break</label><input type="number" id="po-b" min="1" value="' + p.breakMin + '"></div><div class="fld"><label>Long break</label><input type="number" id="po-l" min="1" value="' + p.longMin + '"></div></div><div class="fld"><label>Long break every Nth break (0 = off)</label><input type="number" id="po-e" min="0" value="' + p.longEvery + '"></div><button class="btn btn-p btn-sm" id="po-save">Save pomodoro</button></div>';
@@ -8472,6 +9051,37 @@ function nukeAll() {
       document.querySelectorAll('[data-g]').forEach(function (b) { b.onclick = function () { document.querySelectorAll('[data-g]').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); alignPills(); }; });
       $('se-save').onclick = function () { var n = $('se-n').value.trim(); if (!n) { toast('Name required', 'err'); return; } APP.cfg.name = n; APP.cfg.examDate = $('se-x').value; var g = document.querySelector('[data-g].on'); APP.cfg.group = g ? g.dataset.g : APP.cfg.group; save(true); refreshTop(); toast('Saved', 'ok'); renderSettings(); };
       seEx(); seRev(); seCh();
+      if ($('fb-genkey')) $('fb-genkey').onclick = function () { $('fb-key').value = fbGenKey(); };
+      if ($('se-google-btn')) $('se-google-btn').onclick = async function () {
+        var btn = $('se-google-btn'); btn.disabled = true;
+        try {
+          var profile = await googleSignIn();
+          if (profile.name && (!APP.cfg.name || APP.cfg.name !== profile.name)) { APP.cfg.name = profile.name; save(true); refreshTop(); }
+          var key = googleSyncKey();
+          if ($('fb-key')) $('fb-key').value = key;
+          if ($('fb-cfg') && !$('fb-cfg').value.trim() && DEFAULT_FB_CONFIG) $('fb-cfg').value = JSON.stringify(DEFAULT_FB_CONFIG);
+          if (FB_CONFIG && FB_SYNCKEY) {
+            // Already connected to a Firebase project — just re-key it to this Google account
+            FB_SYNCKEY = key; saveFBCreds();
+            toast('Signed in as ' + profile.email + ' — reconnecting…', 'ok');
+            await fbInit(); await fbPull(true); renderSettings(); showPage(currentPage);
+          } else if (DEFAULT_FB_CONFIG || ($('fb-cfg') && $('fb-cfg').value.trim())) {
+            var cfgStr = ($('fb-cfg') && $('fb-cfg').value.trim()) ? $('fb-cfg').value.trim() : JSON.stringify(DEFAULT_FB_CONFIG);
+            await connectFirebase(cfgStr, key);
+          } else {
+            toast('Signed in as ' + profile.email + ' — paste your Firebase config below, then hit Connect (one-time, per project).', 'ok');
+            renderSettings();
+          }
+        } catch (e) {
+          toast(e.message, 'err');
+        } finally {
+          if ($('se-google-btn')) $('se-google-btn').disabled = false;
+        }
+      };
+      if ($('fb-con')) $('fb-con').onclick = function () { connectFirebase($('fb-cfg').value.trim(), $('fb-key').value.trim()); };
+      if ($('fb-push')) $('fb-push').onclick = function () { fbPush(); };
+      if ($('fb-pull')) $('fb-pull').onclick = function () { fbPull(); };
+      if ($('fb-dis')) $('fb-dis').onclick = disconnectFirebase;
       if ($('g-con')) $('g-con').onclick = function () { connectGist($('g-tok').value.trim()); };
       if ($('g-push')) $('g-push').onclick = function () { syncToCloud(); };
       if ($('g-pull')) $('g-pull').onclick = function () { syncFromCloud(); };
@@ -8710,9 +9320,9 @@ function nukeAll() {
         '<li><b>Flashpoints</b> — chapter-grouped collapsible list; single star flag; search; CSV export/import</li>' +
         '<li><b>Today</b> — bento stats, expandable exam plan, resume strip, today\'s sessions</li>' +
         '<li><b>Timeline</b> — every session on a day &times; hour grid; click a block for details</li>' +
-        '<li><b>Settings</b> — theme (dark/light), width, profile, exemptions, Gist sync, pomodoro, revision offsets, chapter editor, backup</li>' +
+        '<li><b>Settings</b> — theme (dark/light), width, profile, exemptions, cloud sync, pomodoro, revision offsets, chapter editor, backup</li>' +
         '</ul></div>' +
-        '<div class="card mb10"><div class="slbl mb10">Cloud sync (across devices)</div><ol style="padding-left:18px;line-height:1.9;font-size:13px"><li>Open <a href="https://github.com/settings/tokens/new?scopes=gist&description=CA+Tracker" target="_blank">github.com/settings/tokens/new</a>, tick only <b>gist</b>, generate, copy token (ghp_…)</li><li>Settings → Cloud sync → paste → Connect (a private gist is created)</li><li>New device: Settings → Restore → paste same token + the gist id</li></ol><div class="alert al-amber mt10">Token lives in this browser only. Use a gist-scope-only token.</div></div>' +
+        '<div class="card mb10"><div class="slbl mb10">Cloud sync (across devices)</div><ol style="padding-left:18px;line-height:1.9;font-size:13px"><li>Create a free project at <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a>, enable Firestore</li><li>Settings → Cloud sync → paste the Firebase config, generate a sync key, Connect</li><li>New device: Settings → Cloud sync → paste the <b>same</b> Firebase config + sync key, Connect</li></ol><div class="alert al-amber mt10">Your sync key is a shared secret — anyone who has it (and your Firebase config) can read/write your data. Don\'t share it.</div></div>' +
         '</div>';
     }
   </script>
@@ -9055,7 +9665,12 @@ function nukeAll() {
           sendNotification('Time up!', 'Writing time is over. Submit your mock exam.');
         }
       }
-      if (!t._lastSaved || now - t._lastSaved > 60000) { t._lastSaved = now; save(); }
+      if (!t._lastSaved || now - t._lastSaved > 60000) {
+        t._lastSaved = now;
+        var cloudDue = !t._lastCloudQueued || now - t._lastCloudQueued > 300000;
+        if (cloudDue) t._lastCloudQueued = now;
+        save(false, !cloudDue);
+      }
       paintTest(t);
     }
     function paintTest(t) {
@@ -10206,8 +10821,9 @@ function nukeAll() {
       if (APP.activeTest) { APP.activeTest._lastSaved = 0; }
       save(true);
       /* Extra: fire an IDB write immediately on close — belt-and-suspenders for Safari */
-      try { var json = JSON.stringify(APP); idbSet(json); } catch (e) { }
-      if (GTOKEN && GID && _cloudDirty) { if (_cloudT) clearTimeout(_cloudT); _cloudT = null; syncToCloud(); }
+      try { var json = JSON.stringify(APP); idbSet(json).catch(function () { }); } catch (e) { }
+      if (FB_CONFIG && FB_SYNCKEY) { if (_fbPushT) clearTimeout(_fbPushT); _fbPushT = null; fbPush(); }
+      else if (GTOKEN && GID && _cloudDirty) { if (_cloudT) clearTimeout(_cloudT); _cloudT = null; syncToCloud(); }
     }
     window.addEventListener('pagehide', persistNow);
     window.addEventListener('resize', function () { movePill && movePill(); alignPills(); });
@@ -10216,7 +10832,10 @@ function nukeAll() {
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'hidden') persistNow();
       else if (document.visibilityState === 'visible') {
-        if (GTOKEN && GID) syncFromCloud(true);
+        /* Throttled — on mobile, locking/unlocking the phone during a pomodoro
+           break fires this repeatedly in quick succession; without a cooldown
+           this could otherwise spam requests every time the screen wakes. */
+        if (FB_CONFIG && FB_SYNCKEY) maybeFbPull(120000); else maybeSyncFromCloud(120000);
         if (APP && APP.cfg && APP.cfg.keepScreenAwake && (APP.active || APP.activeTest)) {
           requestWakeLock();
         }
@@ -10269,9 +10888,8 @@ function nukeAll() {
       }
     });
     window.addEventListener('online', function () {
-      if (GTOKEN && GID) {
-        syncToCloud();
-      }
+      if (FB_CONFIG && FB_SYNCKEY) fbQueuePush(true);
+      else if (GTOKEN && GID) syncToCloud();
     });
     init();
   </script>
